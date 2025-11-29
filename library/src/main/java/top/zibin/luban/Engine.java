@@ -68,6 +68,31 @@ class Engine {
     return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
   }
 
+  // 根据文件扩展名获取压缩格式
+private Bitmap.CompressFormat getCompressFormat(String imagePath) {
+    if (imagePath == null || imagePath.isEmpty()) {
+        return Bitmap.CompressFormat.JPEG;
+    }
+    
+    String extension = imagePath.substring(imagePath.lastIndexOf(".") + 1).toLowerCase();
+    
+    switch (extension) {
+        case "png":
+        if(focusAlpha){
+          return Bitmap.CompressFormat.PNG;
+        }else{
+           return Bitmap.CompressFormat.JPEG;
+        }
+        case "webp":
+            return Bitmap.CompressFormat.WEBP;
+        case "jpg":
+        case "jpeg":
+            return Bitmap.CompressFormat.JPEG;
+        default:
+            return Bitmap.CompressFormat.JPEG; // 默认 JPEG
+    }
+}
+
   File compress() throws IOException {
     BitmapFactory.Options options = new BitmapFactory.Options();
     options.inSampleSize = computeSize();
@@ -78,7 +103,8 @@ class Engine {
     if (Checker.SINGLE.isJPG(srcImg.open())) {
       tagBitmap = rotatingImage(tagBitmap, Checker.SINGLE.getOrientation(srcImg.open()));
     }
-    tagBitmap.compress(focusAlpha ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG, level, stream);
+       tagBitmap.compress(getCompressFormat(srcImg.getAbsolutePath()), level, stream);
+    //tagBitmap.compress(focusAlpha ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG, level, stream);
     tagBitmap.recycle();
 
     FileOutputStream fos = new FileOutputStream(tagImg);
