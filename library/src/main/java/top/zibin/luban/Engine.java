@@ -103,7 +103,7 @@ private Bitmap.CompressFormat getCompressFormat(String imagePath) {
     if (Checker.SINGLE.isJPG(srcImg.open())) {
       tagBitmap = rotatingImage(tagBitmap, Checker.SINGLE.getOrientation(srcImg.open()));
     }
-       tagBitmap.compress(getCompressFormat(srcImg.getAbsolutePath()), level, stream);
+       tagBitmap.compress(getCompressFormat(srcImg.getPath()), level, stream);
     //tagBitmap.compress(focusAlpha ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG, level, stream);
     tagBitmap.recycle();
 
