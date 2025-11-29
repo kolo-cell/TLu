@@ -33,6 +33,7 @@ public class Luban implements Handler.Callback {
   private OnCompressListener mCompressListener;
   private CompressionPredicate mCompressionPredicate;
   private List<InputStreamProvider> mStreamProviders;
+  private int level;
 
   private Handler mHandler;
 
@@ -41,6 +42,7 @@ public class Luban implements Handler.Callback {
     this.mRenameListener = builder.mRenameListener;
     this.mStreamProviders = builder.mStreamProviders;
     this.focusAlpha = builder.focusAlpha;
+    this.level = builder.level;
     this.mCompressListener = builder.mCompressListener;
     this.mLeastCompressSize = builder.mLeastCompressSize;
     this.mCompressionPredicate = builder.mCompressionPredicate;
@@ -151,7 +153,7 @@ public class Luban implements Handler.Callback {
    */
   private File get(InputStreamProvider input, Context context) throws IOException {
     try {
-      return new Engine(input, getImageCacheFile(context, Checker.SINGLE.extSuffix(input)), focusAlpha).compress();
+      return new Engine(input, getImageCacheFile(context, Checker.SINGLE.extSuffix(input)), focusAlpha,level).compress();
     } finally {
       input.close();
     }
@@ -190,13 +192,13 @@ public class Luban implements Handler.Callback {
     if (mCompressionPredicate != null) {
       if (mCompressionPredicate.apply(path.getPath())
           && Checker.SINGLE.needCompress(mLeastCompressSize, path.getPath())) {
-        result = new Engine(path, outFile, focusAlpha).compress();
+        result = new Engine(path, outFile, focusAlpha,level).compress();
       } else {
         result = new File(path.getPath());
       }
     } else {
       result = Checker.SINGLE.needCompress(mLeastCompressSize, path.getPath()) ?
-          new Engine(path, outFile, focusAlpha).compress() :
+          new Engine(path, outFile, focusAlpha,level).compress() :
           new File(path.getPath());
     }
 
@@ -225,6 +227,7 @@ public class Luban implements Handler.Callback {
     private Context context;
     private String mTargetDir;
     private boolean focusAlpha;
+    private int level;
     private int mLeastCompressSize = 100;
     private OnRenameListener mRenameListener;
     private OnCompressListener mCompressListener;
@@ -332,6 +335,11 @@ public class Luban implements Handler.Callback {
      */
     public Builder setFocusAlpha(boolean focusAlpha) {
       this.focusAlpha = focusAlpha;
+      return this;
+    }
+
+    public Builder setLevel(int level){
+      this.level = level;
       return this;
     }
 
