@@ -143,7 +143,7 @@ public class Luban implements Handler.Callback {
           }finally {
         try {
           path.close();
-        } catch (IOException e) {
+        } catch (Throwable e) {
          // Log.e(TAG, "Failed to close stream provider", e);
         }
       }
