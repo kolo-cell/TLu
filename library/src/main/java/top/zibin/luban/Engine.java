@@ -26,30 +26,20 @@ class Engine {
     this.focusAlpha = focusAlpha;
     this.level = level;
 
-     InputStream inputStream = null;
-     try {
-    inputStream = srcImg.open();
+    
+   
+  
   BitmapFactory.Options options = new BitmapFactory.Options();
     options.inJustDecodeBounds = true;
     options.inSampleSize = 1;
 
 
        
-    BitmapFactory.decodeStream(inputStream, null, options);
+    BitmapFactory.decodeStream( srcImg.open(), null, options);
     this.srcWidth = options.outWidth;
     this.srcHeight = options.outHeight;
        
-  } finally {
-   if(inputStream!=null){
 
-     try{
-inputStream.close();
-
-     }catch(Throwable e){
-
-     }
-   }
-  }
 
        
   
@@ -121,20 +111,19 @@ private Bitmap.CompressFormat getCompressFormat(String imagePath) {
 
   File compress() throws IOException {
 
-    InputStream inputStream = null;
+
     
     
     try {
     BitmapFactory.Options options = new BitmapFactory.Options();
     options.inSampleSize = computeSize();
 
-      inputStream = srcImg.open();
-
-    Bitmap tagBitmap = BitmapFactory.decodeStream(inputStream, null, options);
+    
+    Bitmap tagBitmap = BitmapFactory.decodeStream(srcImg.open(), null, options);
     ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-    if (Checker.SINGLE.isJPG(inputStream)) {
-      tagBitmap = rotatingImage(tagBitmap, Checker.SINGLE.getOrientation(inputStream));
+    if (Checker.SINGLE.isJPG(srcImg.open())) {
+      tagBitmap = rotatingImage(tagBitmap, Checker.SINGLE.getOrientation(srcImg.open()));
     }
        tagBitmap.compress(getCompressFormat(srcImg.getPath()), level, stream);
     //tagBitmap.compress(focusAlpha ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG, level, stream);
@@ -150,16 +139,6 @@ private Bitmap.CompressFormat getCompressFormat(String imagePath) {
        } catch (Throwable e) { // 捕捉所有，包括 OOM
        // e.printStackTrace();
         throw new IOException("compress failed", e);
-    }finally {
-      try{
-       
-          if(inputStream!=null){
- inputStream.close();
-      }
-       
-      }catch(Throwable e){
-      }
-    
     }
   }
 }
