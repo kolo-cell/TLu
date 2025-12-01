@@ -94,6 +94,7 @@ private Bitmap.CompressFormat getCompressFormat(String imagePath) {
 }
 
   File compress() throws IOException {
+    try {
     BitmapFactory.Options options = new BitmapFactory.Options();
     options.inSampleSize = computeSize();
 
@@ -114,5 +115,9 @@ private Bitmap.CompressFormat getCompressFormat(String imagePath) {
     stream.close();
 
     return tagImg;
+       } catch (Throwable e) { // 捕捉所有，包括 OOM
+       // e.printStackTrace();
+        throw new IOException("compress failed", e);
+    }
   }
 }
