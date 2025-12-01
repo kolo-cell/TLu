@@ -26,13 +26,33 @@ class Engine {
     this.focusAlpha = focusAlpha;
     this.level = level;
 
-    BitmapFactory.Options options = new BitmapFactory.Options();
+     InputStream inputStream = null;
+     try {
+    inputStream = srcImg.open();
+  BitmapFactory.Options options = new BitmapFactory.Options();
     options.inJustDecodeBounds = true;
     options.inSampleSize = 1;
 
-    BitmapFactory.decodeStream(srcImg.open(), null, options);
+
+       
+    BitmapFactory.decodeStream(inputStream, null, options);
     this.srcWidth = options.outWidth;
     this.srcHeight = options.outHeight;
+       
+  } finally {
+   if(inputStream!=null){
+
+     try{
+inputStream.close();
+
+     }catch(Throwable e){
+
+     }
+   }
+  }
+
+       
+  
   }
 
   private int computeSize() {
@@ -73,8 +93,14 @@ private Bitmap.CompressFormat getCompressFormat(String imagePath) {
     if (imagePath == null || imagePath.isEmpty()) {
         return Bitmap.CompressFormat.JPEG;
     }
-    
-    String extension = imagePath.substring(imagePath.lastIndexOf(".") + 1).toLowerCase();
+
+   int lastDotIndex = imagePath.lastIndexOf(".");
+  if (lastDotIndex <= 0) {
+    return Bitmap.CompressFormat.JPEG; // 没有扩展名，默认JPEG
+  }
+  
+  String extension = imagePath.substring(lastDotIndex + 1).toLowerCase();
+  
     
     switch (extension) {
         case "png":
@@ -94,20 +120,26 @@ private Bitmap.CompressFormat getCompressFormat(String imagePath) {
 }
 
   File compress() throws IOException {
+
+    InputStream inputStream = null;
+    
+    
     try {
     BitmapFactory.Options options = new BitmapFactory.Options();
     options.inSampleSize = computeSize();
 
-    Bitmap tagBitmap = BitmapFactory.decodeStream(srcImg.open(), null, options);
+      inputStream = srcImg.open();
+
+    Bitmap tagBitmap = BitmapFactory.decodeStream(inputStream, null, options);
     ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-    if (Checker.SINGLE.isJPG(srcImg.open())) {
-      tagBitmap = rotatingImage(tagBitmap, Checker.SINGLE.getOrientation(srcImg.open()));
+    if (Checker.SINGLE.isJPG(inputStream)) {
+      tagBitmap = rotatingImage(tagBitmap, Checker.SINGLE.getOrientation(inputStream));
     }
        tagBitmap.compress(getCompressFormat(srcImg.getPath()), level, stream);
     //tagBitmap.compress(focusAlpha ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG, level, stream);
-    tagBitmap.recycle();
-
+    
+ tagBitmap.recycle();
     FileOutputStream fos = new FileOutputStream(tagImg);
     fos.write(stream.toByteArray());
     fos.flush();
@@ -118,6 +150,16 @@ private Bitmap.CompressFormat getCompressFormat(String imagePath) {
        } catch (Throwable e) { // 捕捉所有，包括 OOM
        // e.printStackTrace();
         throw new IOException("compress failed", e);
+    }finally {
+      try{
+       
+          if(inputStream!=null){
+ inputStream.close();
+      }
+       
+      }catch(Throwable e){
+      }
+    
     }
   }
 }
