@@ -140,7 +140,13 @@ public class Luban implements Handler.Callback {
             mHandler.sendMessage(mHandler.obtainMessage(MSG_COMPRESS_SUCCESS, result));
           } catch (IOException e) {
             mHandler.sendMessage(mHandler.obtainMessage(MSG_COMPRESS_ERROR, e));
-          }
+          }finally {
+        try {
+          path.close();
+        } catch (IOException e) {
+         // Log.e(TAG, "Failed to close stream provider", e);
+        }
+      }
         }
       });
 
